@@ -4,22 +4,16 @@
 
 typedef int (*CompareFunc)(const void *, const void *);
 
-int compareInt(const void *a, const void *b) {
-    return (*(int*)a - *(int*)b);
-}
+int compareInt(const void *a, const void *b) { return (*(int *)a - *(int *)b); }
 
 int compareFloat(const void *a, const void *b) {
-    float diff = (*(float*)a - *(float*)b);
+    float diff = (*(float *)a - *(float *)b);
     return (diff > 0) ? 1 : ((diff < 0) ? -1 : 0);
 }
 
-int compareString(const void *a, const void *b) {
-    return strcmp(*(char**)a, *(char**)b);
-}
+int compareString(const void *a, const void *b) { return strcmp(*(char **)a, *(char **)b); }
 
-void sort(void *array, size_t n, size_t size, CompareFunc compare) {
-    qsort(array, n, size, compare);
-}
+void sort(void *array, size_t n, size_t size, CompareFunc compare) { qsort(array, n, size, compare); }
 
 void processFile(const char *filename) {
     FILE *fin = fopen(filename, "r");
@@ -40,14 +34,59 @@ void processFile(const char *filename) {
     printf("=== 处理数据来自: %s ===\n", filename);
 
     switch (choice) {
-        // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+        case 1: {
+            int arr[20];
+            for (int i = 0; i < n; i++) {
+                if (fscanf(fin, "%d", &arr[i]) != 1) {
+                    printf("错误: 整数数据读取失败\n");
+                    fclose(fin);
+                    return;
+                }
+            }
+
+            sort(arr, (size_t)n, sizeof(int), compareInt);
+
+            printf("排序结果: ");
+            for (int i = 0; i < n; i++) {
+                printf("%d", arr[i]);
+                if (i != n - 1) {
+                    printf(" ");
+                }
+            }
+            printf("\n");
+            break;
+        }
+        case 2: {
+            float arr[20];
+            for (int i = 0; i < n; i++) {
+                if (fscanf(fin, "%f", &arr[i]) != 1) {
+                    printf("错误: 浮点数据读取失败\n");
+                    fclose(fin);
+                    return;
+                }
+            }
+
+            sort(arr, (size_t)n, sizeof(float), compareFloat);
+
+            printf("排序结果: ");
+            for (int i = 0; i < n; i++) {
+                printf("%.2f", arr[i]);
+                if (i != n - 1) {
+                    printf(" ");
+                }
+            }
+            printf("\n");
+            break;
+        }
+        default:
+            printf("错误: 不支持的数据类型编号 %d\n", choice);
+            break;
     }
 
     fclose(fin);
 }
 
-int main() {
+int main(void) {
     processFile("int_sort.txt");
     processFile("float_sort.txt");
 

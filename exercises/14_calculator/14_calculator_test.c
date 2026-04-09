@@ -1,5 +1,8 @@
-#include <stdio.h>
+#define CALCULATOR_NO_MAIN
+#include "14_calculator.c"
+
 #include <assert.h>
+#include <stdio.h>
 
 // 测试加法函数
 void test_add() {
@@ -31,15 +34,15 @@ void test_divide() {
     assert(divide(0, 1) == 0);
     assert(divide(-10, 2) == -5);
     // 测试除数为0的情况
-    assert(divide(5, 0) == 0); // 预期输出错误信息
+    assert(divide(5, 0) == 0);  // 预期输出错误信息
 }
 
-int main() {
+int main(void) {
     test_add();
     test_subtract();
     test_multiply();
     test_divide();
-    
+
     printf("所有测试通过！\n");
     return 0;
 }
