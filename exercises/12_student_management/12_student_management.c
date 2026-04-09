@@ -8,7 +8,7 @@ typedef struct {
     int age;
 } Student;
 
-int main() {
+int main(void) {
     FILE *file = fopen("students.txt", "r");
     if (file == NULL) {
         printf("无法打开文件\n");
@@ -19,8 +19,20 @@ int main() {
     
     for (int i = 0; i < 3; i++) 
     {
-	    // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+    	students[i] = malloc(sizeof(Student));
+    	if (!students[i]) {
+    		fprintf(stderr, "内存分配失败\n");
+    		for (int j = 0; j < i; j++) free(students[j]);
+    		fclose(file);
+    		return 1;
+    	}
+    	if (fscanf(file, "%19s %49s %d", students[i]->id, students[i]->name, &students[i]->age) != 3) {
+    		free(students[i]);
+    		for (int j = 0; j < i; j++) free(students[j]);
+    		fclose(file);
+    		printf("文件格式错误\n");
+    		return 1;
+    	}
     }
     fclose(file);
     
