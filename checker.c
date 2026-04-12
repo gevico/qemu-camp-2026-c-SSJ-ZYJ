@@ -4,11 +4,14 @@
  * C 语言练习题检查器 - 合并基础阶段与专业阶段，共 40 题
  */
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #define MAX_EXERCISES 40
 #define MAX_NAME_LEN 64
@@ -98,7 +101,58 @@ static int run_test(const char *exercise_name) {
     return test_result == 0 ? 0 : 1;
 }
 
-static int check_exercise(const char *exercise_name) {
+static void print_single_check_program_output(const char *exercise_name) {
+    char executable_path[256];
+    char run_cmd[512];
+    char output[8192];
+    size_t total_read;
+    FILE *fp;
+    int run_status;
+
+    if (strcmp(exercise_name, "20_mybash") == 0) {
+        return;
+    }
+
+    snprintf(executable_path, sizeof(executable_path), "exercises/%s/%s", exercise_name, exercise_name);
+    if (access(executable_path, X_OK) != 0) {
+        return;
+    }
+
+    snprintf(
+        run_cmd,
+        sizeof(run_cmd),
+        "cd exercises/%s && timeout 2s ./%s 2>&1",
+        exercise_name,
+        exercise_name);
+
+    fp = popen(run_cmd, "r");
+    if (fp == NULL) {
+        return;
+    }
+
+    total_read = fread(output, 1, sizeof(output) - 1, fp);
+    output[total_read] = '\0';
+    run_status = pclose(fp);
+
+    if (WIFEXITED(run_status) && WEXITSTATUS(run_status) == 124) {
+        printf(COLOR_YELLOW "⚠️  程序输出展示已跳过: 运行超时(2秒)，可能需要输入或长时间执行" COLOR_RESET "\n");
+        return;
+    }
+
+    printf(COLOR_BLUE "📄 程序输出(%s):" COLOR_RESET "\n", exercise_name);
+    printf("------------------------------------------------\n");
+    if (total_read > 0) {
+        printf("%s", output);
+        if (output[total_read - 1] != '\n') {
+            printf("\n");
+        }
+    } else {
+        printf("(无输出)\n");
+    }
+    printf("------------------------------------------------\n");
+}
+
+static int check_exercise(const char *exercise_name, int show_program_output) {
     char filepath[256];
     int test_result;
 
@@ -118,6 +172,10 @@ static int check_exercise(const char *exercise_name) {
     }
 
     test_result = run_test(exercise_name);
+    if (show_program_output) {
+        print_single_check_program_output(exercise_name);
+    }
+
     if (test_result == 0) {
         printf(COLOR_GREEN "✅ 练习题通过所有测试！" COLOR_RESET "\n");
         return 1;
@@ -160,7 +218,7 @@ static void check_all_exercises(checker_t *checker) {
     checker->total_failed = 0;
 
     for (i = 0; i < checker->count; i++) {
-        int result = check_exercise(checker->exercises[i].name);
+        int result = check_exercise(checker->exercises[i].name, 0);
         if (result == 1) {
             checker->total_passed++;
             checker->exercises[i].completed = 1;
@@ -395,7 +453,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(command, "check") == 0) {
-            int result = check_exercise(exercise_name);
+            int result = check_exercise(exercise_name, 1);
             return result == 1 ? 0 : 1;
         }
 
