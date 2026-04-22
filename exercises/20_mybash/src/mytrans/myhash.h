@@ -2,9 +2,9 @@
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
-#include "common.h"
-
 #include <stdint.h>
+
+#include "../../include/common.h"
 #define HASH_TABLE_SIZE 10000003  // 应选一个较大的质数，有利于分布
 
 // 哈希节点
@@ -20,11 +20,11 @@ typedef struct {
 } HashTable;
 
 // 函数声明
-HashTable* create_hash_table();
+HashTable *create_hash_table();
 void free_hash_table(HashTable *table);
 int hash_table_insert(HashTable *table, const char *key, const char *value);
-const char* hash_table_lookup(HashTable *table, const char *key);
+const char *hash_table_lookup(HashTable *table, const char *key);
 
-int load_dictionary(const char *filename, HashTable *table, uint64_t* dict_count);
+int load_dictionary(const char *filename, HashTable *table, uint64_t *dict_count);
 
 #endif

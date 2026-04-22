@@ -1,13 +1,13 @@
 #ifndef EXERCISE_18_MYWC_H
 #define EXERCISE_18_MYWC_H
 
-#include "common.h"
-
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
+
+#include "../../include/common.h"
 
 #define MAX_WORD_LEN 128
 #define HASH_SIZE 1000
@@ -27,4 +27,4 @@ void wc_free_hash_table(WordCount **hash_table);
 bool is_valid_word_char(char c);
 char to_lower(char c);
 
-#endif //! EXERCISE_18_MYWC_H
+#endif  //! EXERCISE_18_MYWC_H

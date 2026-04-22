@@ -10,7 +10,7 @@ void to_lowercase(char *str) {
     *str = tolower((unsigned char)*str);
 }
 
-int main() {
+int main(void) {
   HashTable *table = create_hash_table();
   if (!table) {
     fprintf(stderr, "无法创建哈希表\n");
@@ -42,10 +42,22 @@ int main() {
     }
 
     // 使用 strtok 按空格分割单词
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    char *token = strtok(line, " ");
+    while (token != NULL) {
+      to_lowercase(token);
+
+      const char *translation = hash_table_lookup(table, token);
+      if (translation) {
+        printf("原文: %s\t翻译: %s\n", token, translation);
+      } else {
+        printf("原文: %s\t未找到该单词的翻译。\n", token);
+      }
+
+      token = strtok(NULL, " ");
+    }
   }
 
+  fclose(file);
   free_hash_table(table);
   return 0;
 }
