@@ -1,7 +1,7 @@
 #ifndef __MYFILE_H__
 #define __MYFILE_H__
 
-#include "common.h"
+#include "../../include/common.h"
 
 #include <elf.h>
 #include <fcntl.h>

@@ -49,13 +49,13 @@ int parse_replace_command(const char* cmd, char** old_str, char** new_str) {
     return 0;
 }
 
-void replace_first_occurrence(char* str, const char* old, const char* new) {
+void replace_first_occurrence(char* str, const char* old, const char* new_text) {
     char* pos;
     char temp[MAX_LINE_LENGTH];
     size_t prefix_len;
     size_t old_len;
 
-    if (str == NULL || old == NULL || new == NULL || old[0] == '\0') {
+    if (str == NULL || old == NULL || new_text == NULL || old[0] == '\0') {
         return;
     }
 
@@ -67,7 +67,7 @@ void replace_first_occurrence(char* str, const char* old, const char* new) {
     prefix_len = (size_t)(pos - str);
     old_len = strlen(old);
 
-    snprintf(temp, sizeof(temp), "%.*s%s%s", (int)prefix_len, str, new, pos + old_len);
+    snprintf(temp, sizeof(temp), "%.*s%s%s", (int)prefix_len, str, new_text, pos + old_len);
     strncpy(str, temp, MAX_LINE_LENGTH - 1);
     str[MAX_LINE_LENGTH - 1] = '\0';
 }

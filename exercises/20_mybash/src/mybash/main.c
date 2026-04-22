@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -58,8 +59,20 @@ int is_builtin_command(char **args) {
   if (args[0] == NULL)
     return 0;
 
-  // TODO: 在这里添加你的代码
-  // I AM NOT DONE
+  if (strcmp(args[0], "cd") == 0) {
+    execute_cd(args);
+    return 1;
+  } else if (strcmp(args[0], "exit") == 0) {
+    execute_exit();
+    return 1;
+  } else if (strcmp(args[0], "help") == 0) {
+    printf("mybash - A simple shell\n");
+    printf("Builtin commands:\n");
+    printf("  cd <path>  - Change directory\n");
+    printf("  exit       - Exit the shell\n");
+    printf("  help       - Show this help message\n");
+    return 1;
+  }
 
   return 0;
 }
@@ -68,7 +81,6 @@ int parse_input(char *input, char **args) {
   int i = 0;
   int in_quotes = 0;
   char *buf = input;
-  char *arg_start = NULL;
   char arg_buf[MAX_INPUT];  // 临时存储当前正在解析的参数
   int arg_buf_idx = 0;
 
@@ -77,8 +89,20 @@ int parse_input(char *input, char **args) {
   while (*buf != '\0' && i < MAX_ARGS - 1) {
       char c = *buf;
 
-        // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+      if (c == '"') {
+          in_quotes = !in_quotes;
+      } else if (isspace(c) && !in_quotes) {
+          if (arg_buf_idx > 0) {
+              arg_buf[arg_buf_idx] = '\0';
+              args[i++] = strdup(arg_buf);
+              arg_buf_idx = 0;
+              memset(arg_buf, 0, sizeof(arg_buf));
+          }
+      } else {
+          if (arg_buf_idx < MAX_INPUT - 1) {
+              arg_buf[arg_buf_idx++] = c;
+          }
+      }
 
       buf++;
   }
