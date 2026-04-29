@@ -25,7 +25,7 @@ link search(unsigned char key);
 void insert(link p);
 
 // 删除指定节点
-void delete(link p);
+void delete_node(link p);
 
 // 遍历链表
 void traverse(void (*visit)(link));
