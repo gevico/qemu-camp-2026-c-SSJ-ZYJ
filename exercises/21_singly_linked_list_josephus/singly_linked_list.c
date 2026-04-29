@@ -28,7 +28,7 @@ void insert(link p) {
 }
 
 // 删除指定节点
-void delete(link p) {
+void delete_node(link p) {
     // TODO: 在这里添加你的代码
     // I AM NOT DONE
 }
