@@ -11,13 +11,32 @@ Queue* create_queue() {
 }
 
 void enqueue(Queue *q, TreeNode *tree_node) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    QueueNode *node = (QueueNode *)malloc(sizeof(QueueNode));
+    if (node == NULL) {
+        return;
+    }
+    node->tree_node = tree_node;
+    node->next = NULL;
+    if (q->rear == NULL) {
+        q->front = q->rear = node;
+        return;
+    }
+    q->rear->next = node;
+    q->rear = node;
 }
 
 TreeNode* dequeue(Queue *q) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (is_empty(q)) {
+        return NULL;
+    }
+    QueueNode *node = q->front;
+    TreeNode *tree_node = node->tree_node;
+    q->front = node->next;
+    if (q->front == NULL) {
+        q->rear = NULL;
+    }
+    free(node);
+    return tree_node;
 }
 
 bool is_empty(Queue *q) {
@@ -32,18 +51,87 @@ void free_queue(Queue *q) {
 }
 
 TreeNode* build_tree_by_level(int *level_order, int size) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (level_order == NULL || size <= 0 || level_order[0] == INT_MIN) {
+        return NULL;
+    }
+
+    TreeNode *root = (TreeNode *)malloc(sizeof(TreeNode));
+    if (root == NULL) {
+        return NULL;
+    }
+    root->val = level_order[0];
+    root->left = NULL;
+    root->right = NULL;
+
+    Queue *q = create_queue();
+    enqueue(q, root);
+
+    int index = 1;
+    while (!is_empty(q) && index < size) {
+        TreeNode *parent = dequeue(q);
+        if (index < size && level_order[index] != INT_MIN) {
+            TreeNode *left = (TreeNode *)malloc(sizeof(TreeNode));
+            left->val = level_order[index];
+            left->left = NULL;
+            left->right = NULL;
+            parent->left = left;
+            enqueue(q, left);
+        }
+        ++index;
+        if (index < size && level_order[index] != INT_MIN) {
+            TreeNode *right = (TreeNode *)malloc(sizeof(TreeNode));
+            right->val = level_order[index];
+            right->left = NULL;
+            right->right = NULL;
+            parent->right = right;
+            enqueue(q, right);
+        }
+        ++index;
+    }
+
+    free_queue(q);
+    return root;
 }
 
 void preorder_traversal(TreeNode *root) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (root == NULL) {
+        return;
+    }
+    printf("%d ", root->val);
+    preorder_traversal(root->left);
+    preorder_traversal(root->right);
 }
 
 void preorder_traversal_iterative(TreeNode *root) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (root == NULL) {
+        return;
+    }
+
+    int capacity = 32;
+    int top = 0;
+    TreeNode **stack = (TreeNode **)malloc(sizeof(TreeNode *) * capacity);
+    stack[top++] = root;
+
+    while (top > 0) {
+        TreeNode *node = stack[--top];
+        printf("%d ", node->val);
+        if (node->right != NULL) {
+            if (top == capacity) {
+                capacity *= 2;
+                stack = (TreeNode **)realloc(stack, sizeof(TreeNode *) * capacity);
+            }
+            stack[top++] = node->right;
+        }
+        if (node->left != NULL) {
+            if (top == capacity) {
+                capacity *= 2;
+                stack = (TreeNode **)realloc(stack, sizeof(TreeNode *) * capacity);
+            }
+            stack[top++] = node->left;
+        }
+    }
+
+    free(stack);
 }
 
 void free_tree(TreeNode *root) {
