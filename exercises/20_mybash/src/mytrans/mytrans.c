@@ -5,6 +5,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+static const char *resolve_dict_path(void) {
+  static const char *candidates[] = {
+      "./src/mytrans/dict.txt",
+      "src/mytrans/dict.txt",
+      "../exercises/20_mybash/src/mytrans/dict.txt",
+      "../../exercises/20_mybash/src/mytrans/dict.txt",
+      "./dict.txt",
+      "../dict.txt",
+  };
+  for (size_t i = 0; i < sizeof(candidates) / sizeof(candidates[0]); ++i) {
+    if (access(candidates[i], R_OK) == 0) {
+      return candidates[i];
+    }
+  }
+  return NULL;
+}
+
+static FILE *open_input_file(const char *filename) {
+  if (!filename || filename[0] == '\0') {
+    return NULL;
+  }
+
+  FILE *file = fopen(filename, "r");
+  if (file) {
+    return file;
+  }
+
+  if (filename[0] == '/') {
+    return NULL;
+  }
+
+  static const char *bases[] = {
+      "../exercises/20_mybash/",
+      "../../exercises/20_mybash/",
+      "exercises/20_mybash/",
+      "../",
+      "./",
+  };
+  char path[512];
+  for (size_t i = 0; i < sizeof(bases) / sizeof(bases[0]); ++i) {
+    snprintf(path, sizeof(path), "%s%s", bases[i], filename);
+    file = fopen(path, "r");
+    if (file) {
+      return file;
+    }
+  }
+
+  return NULL;
+}
 
 void trim(char *str) {
   if (!str)
@@ -93,16 +144,22 @@ int __cmd_mytrans(const char* filename) {
 
   printf("=== 哈希表版英语翻译器（支持百万级数据）===\n");
   uint64_t dict_count = 0;
-  if (load_dictionary("./src/mytrans/dict.txt", table, &dict_count) != 0) {
+  const char *dict_path = resolve_dict_path();
+  if (!dict_path) {
+    fprintf(stderr, "加载词典失败，请确保 dict.txt 存在。\n");
+    free_hash_table(table);
+    return 1;
+  }
+  if (load_dictionary(dict_path, table, &dict_count) != 0) {
     fprintf(stderr, "加载词典失败，请确保 dict.txt 存在。\n");
     free_hash_table(table);
     return 1;
   }
   printf("词典加载完成，共计%ld词条。\n", dict_count);
 
-  FILE* file = fopen(filename, "r");
+  FILE* file = open_input_file(filename);
   if (file == NULL) {
-    fprintf(stderr, "无法打开文件 dict.txt。\n");
+    fprintf(stderr, "无法打开文件 %s。\n", filename ? filename : "(null)");
     free_hash_table(table);
     return 1;
   }
